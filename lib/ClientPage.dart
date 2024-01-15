@@ -1,0 +1,244 @@
+import 'dart:convert';
+import 'dart:io';
+import 'dart:typed_data';
+
+import 'package:flutter/material.dart';
+import 'package:network_info_plus/network_info_plus.dart';
+import 'package:overlay_support/overlay_support.dart';
+import 'package:provider/provider.dart';
+import 'package:regexed_validator/regexed_validator.dart';
+import 'package:wedband2/Configuration.dart';
+import 'package:wedband2/ConfigurationUtils.dart';
+
+import 'Client.dart';
+import 'PdfListScreen.dart';
+
+class ClientPage extends StatefulWidget {
+  @override
+  _ClientPageState createState() => _ClientPageState();
+}
+
+class _ClientPageState extends State<ClientPage> {
+  late Client client;
+  String textFieldIp = '';
+
+  @override
+  void initState() {
+    super.initState();
+    createClient();
+  }
+
+  void createClient() async {
+    String ip = await ConfigurationUtils.loadConstant('client-ip');
+    if (Platform.isAndroid) {
+      final info = NetworkInfo();
+      String? wifi = await info.getWifiGatewayIP();
+      ip = wifi != null ? wifi : ip;
+    }
+    if (ip.isEmpty) {
+      ip = '192.168.';
+    }
+    setState(() {
+      textFieldIp = ip;
+      client = Client(ip, 4040, this.onData, this.onError);
+    });
+  }
+
+  onData(Uint8List data) {
+    var downloadData = new String.fromCharCodes(data).trim();
+    Codec<String, String> base64Conventer = utf8.fuse(base64);
+    String decoded = base64Conventer.decode(downloadData);
+    decoded = decoded ?? '';
+    Provider.of<Configuration>(context, listen: false).changeSongTitle(decoded);
+    setState(() {});
+  }
+
+  onError(dynamic error) {
+    print(error);
+  }
+
+  dispose() {
+    client.disconnect();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('BAND APP'),
+        centerTitle: true,
+        automaticallyImplyLeading: false,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: confirmReturn,
+        ),
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text('Serwer ip:',
+                        style: TextStyle(color: Colors.black, fontSize: 30)),
+                    Padding(padding: EdgeInsets.all(10)),
+                    SizedBox(
+                      height: 60,
+                      width: 200,
+                      child: TextFormField(
+                        initialValue: textFieldIp,
+                        decoration: InputDecoration(
+                            border: OutlineInputBorder(),
+                            hintText: 'Serwer ip',
+                            labelText: 'Serwer ip'),
+                        onChanged: (text) {
+                          setState(() {
+                            textFieldIp = text;
+                          });
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    OutlinedButton(
+                      style: ButtonStyle(
+                        shape: MaterialStateProperty.all(RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30.0))),
+                      ),
+                      onPressed: () async {
+                        writeServerIp(textFieldIp);
+                      },
+                      child: Text('Potwierdź',
+                          style: TextStyle(color: Colors.black, fontSize: 30)),
+                    )
+                  ],
+                )
+              ],
+            ),
+          ),
+          Expanded(
+            child: InkWell(
+              onTap: () async {
+                if (client.connected) {
+                  await client.disconnect();
+                } else {
+                  await client.connect();
+                }
+                setState(() {});
+              },
+              child: Container(
+                color: Colors.white,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Klient  ',
+                      style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 40,
+                          fontWeight: FontWeight.bold),
+                    ),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: client.connected ? Colors.green : Colors.red,
+                        borderRadius: BorderRadius.all(Radius.circular(3)),
+                      ),
+                      padding: EdgeInsets.all(5),
+                      child: Text(
+                        client.connected ? 'POŁĄCZONY' : 'NIEPOWIĄZANY',
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+            child: InkWell(
+              onTap: () {
+                viewSonglist();
+              },
+              child: Container(
+                color: Colors.white12,
+                child: Center(
+                  child: Text(
+                    'Lista utworów',
+                    style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 30),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  confirmReturn() {
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text("UWAGA"),
+          content: Text("Opuszczenie tej strony spowoduje wyłączenie klienta"),
+          actions: <Widget>[
+            TextButton(
+              child: Text("OK", style: TextStyle(color: Colors.red)),
+              onPressed: () {
+                Navigator.of(context).pop();
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text("Anuluj", style: TextStyle(color: Colors.grey)),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void viewSonglist() {
+    Navigator.push(context,
+        MaterialPageRoute(builder: (context) => PdfListScreen(null, client)));
+  }
+
+  void writeServerIp(String ip) async {
+    if (validator.ip(ip)) {
+      ConfigurationUtils.saveConstant('client-ip', ip);
+      showSimpleNotification(
+          Text('Ip zostało zapisane',
+              style: TextStyle(
+                fontSize: 10,
+                color: Colors.black,
+              )),
+          background: Colors.white);
+      setState(() {
+        textFieldIp = ip;
+        client = Client(ip, 4040, this.onData, this.onError);
+      });
+    } else {
+      showSimpleNotification(
+          Text('Błąd edycji ip',
+              style: TextStyle(fontSize: 10, color: Colors.black)),
+          background: Colors.white);
+    }
+  }
+}
