@@ -1,9 +1,7 @@
 import 'dart:convert';
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:network_info_plus/network_info_plus.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:provider/provider.dart';
 import 'package:regexed_validator/regexed_validator.dart';
@@ -19,23 +17,23 @@ class ServerPage extends StatefulWidget {
 }
 
 class _ServerPageState extends State<ServerPage> {
-  late Server server;
-  String textFieldIp = '';
+
+  TextEditingController textFieldIpController = TextEditingController();
+  Server? server;
 
   @override
   void initState() {
     createServer();
-    super.initState();
   }
 
   void createServer() async {
     String ip = await ConfigurationUtils.loadConstant('server-ip');
-    if(ip.isEmpty){
+    if (ip.isEmpty) {
       ip = '0.0.0.0';
     }
     setState(() {
-      textFieldIp = ip;
-      server = Server(this.textFieldIp, this.onData, this.onError);
+      textFieldIpController.text = ip;
+      server = Server(textFieldIpController.text, this.onData, this.onError);
     });
   }
 
@@ -44,9 +42,10 @@ class _ServerPageState extends State<ServerPage> {
     Codec<String, String> base64Conventer = utf8.fuse(base64);
     String decoded = base64Conventer.decode(downloadData);
     decoded = decoded ?? '';
-    server.sendAll(downloadData);
+    if (server != null && server!.running) {
+      server!.sendAll(downloadData);
+    }
     Provider.of<Configuration>(context, listen: false).changeSongTitle(decoded);
-
     setState(() {});
   }
 
@@ -55,7 +54,9 @@ class _ServerPageState extends State<ServerPage> {
   }
 
   dispose() {
-    server.stop();
+    if (server != null && server!.running) {
+      server!.stop();
+    }
     super.dispose();
   }
 
@@ -88,16 +89,17 @@ class _ServerPageState extends State<ServerPage> {
                   height: 60,
                   width: 200,
                   child: TextFormField(
-                    initialValue: textFieldIp,
+                    key: UniqueKey(),
+                    controller: textFieldIpController,
                     decoration: const InputDecoration(
                         border: OutlineInputBorder(),
                         hintText: 'Serwer ip',
                         labelText: 'Serwer ip'),
-                    onChanged: (text) {
-                      setState(() {
-                        textFieldIp = text;
-                      });
-                    },
+                    // onChanged: (text) {
+                    //     setState(() {
+                    //       textFieldIp = text;
+                    //     });
+                    //   }
                   ),
                 ),
                 Padding(padding: EdgeInsets.all(10)),
@@ -106,8 +108,8 @@ class _ServerPageState extends State<ServerPage> {
                     shape: MaterialStateProperty.all(RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30.0))),
                   ),
-                  onPressed: () async {
-                    writeServerIp(textFieldIp);
+                  onPressed: () {
+                    writeServerIp(textFieldIpController.text);
                   },
                   child: Text('Potwierdź',
                       style: TextStyle(color: Colors.black, fontSize: 30)),
@@ -118,10 +120,12 @@ class _ServerPageState extends State<ServerPage> {
           Expanded(
             child: InkWell(
               onTap: () async {
-                if (server.running) {
-                  await server.stop();
+                if (server != null && server!.running) {
+                  await server!.stop();
                 } else {
-                  await server.start();
+                  server =
+                      new Server(this.textFieldIpController.text, this.onData, this.onError);
+                  await server!.start();
                 }
                 setState(() {});
               },
@@ -139,12 +143,14 @@ class _ServerPageState extends State<ServerPage> {
                     ),
                     Container(
                       decoration: BoxDecoration(
-                        color: server.running ? Colors.green : Colors.red,
+                        color: server != null && server!.running
+                            ? Colors.green
+                            : Colors.red,
                         borderRadius: BorderRadius.all(Radius.circular(3)),
                       ),
                       padding: EdgeInsets.all(5),
                       child: Text(
-                        server.running ? 'ON' : 'OFF',
+                        server != null && server!.running ? 'ON' : 'OFF',
                         style: TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
@@ -212,21 +218,21 @@ class _ServerPageState extends State<ServerPage> {
         MaterialPageRoute(builder: (context) => PdfListScreen(server, null)));
   }
 
-  void writeServerIp(String ip) async {
-    if (server.running) {
+  void writeServerIp(String ip) {
+    if (server != null && server!.running) {
       showSimpleNotification(
           Text('Nie można edytować ip gdy serwer jest uruchomiony!',
               style: TextStyle(fontSize: 20, color: Colors.black)),
           background: Colors.white);
     } else {
-      if (validator.ip(ip) && !server.running) {
+      if (validator.ip(ip) && (server == null || server!.running == false)) {
         ConfigurationUtils.saveConstant('server-ip', ip);
         showSimpleNotification(
             Text('Ip zostało zapisane',
                 style: TextStyle(fontSize: 20, color: Colors.black)),
             background: Colors.white);
         setState(() {
-          textFieldIp = ip;
+          textFieldIpController.text = ip;
           server = Server(ip, this.onData, this.onError);
         });
       } else {

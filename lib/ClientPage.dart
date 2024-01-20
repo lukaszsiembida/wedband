@@ -19,12 +19,12 @@ class ClientPage extends StatefulWidget {
 }
 
 class _ClientPageState extends State<ClientPage> {
-  late Client client;
-  String textFieldIp = '';
+
+  Client? client;
+  TextEditingController textFieldIpController = TextEditingController();
 
   @override
   void initState() {
-    super.initState();
     createClient();
   }
 
@@ -39,7 +39,7 @@ class _ClientPageState extends State<ClientPage> {
       ip = '192.168.';
     }
     setState(() {
-      textFieldIp = ip;
+      textFieldIpController.text = ip;
       client = Client(ip, 4040, this.onData, this.onError);
     });
   }
@@ -58,7 +58,9 @@ class _ClientPageState extends State<ClientPage> {
   }
 
   dispose() {
-    client.disconnect();
+    if(client != null && client!.connected) {
+      client!.disconnect();
+    }
     super.dispose();
   }
 
@@ -90,16 +92,12 @@ class _ClientPageState extends State<ClientPage> {
                       height: 60,
                       width: 200,
                       child: TextFormField(
-                        initialValue: textFieldIp,
+                        key: UniqueKey(),
+                        controller: textFieldIpController,
                         decoration: InputDecoration(
                             border: OutlineInputBorder(),
                             hintText: 'Serwer ip',
                             labelText: 'Serwer ip'),
-                        onChanged: (text) {
-                          setState(() {
-                            textFieldIp = text;
-                          });
-                        },
                       ),
                     ),
                   ],
@@ -113,7 +111,7 @@ class _ClientPageState extends State<ClientPage> {
                             borderRadius: BorderRadius.circular(30.0))),
                       ),
                       onPressed: () async {
-                        writeServerIp(textFieldIp);
+                        writeServerIp(textFieldIpController.text);
                       },
                       child: Text('Potwierdź',
                           style: TextStyle(color: Colors.black, fontSize: 30)),
@@ -126,10 +124,11 @@ class _ClientPageState extends State<ClientPage> {
           Expanded(
             child: InkWell(
               onTap: () async {
-                if (client.connected) {
-                  await client.disconnect();
+                if (client != null && client!.connected) {
+                  await client!.disconnect();
                 } else {
-                  await client.connect();
+                  client = new Client(textFieldIpController.text, 4040, this.onData, this.onError);
+                  await client!.connect();
                 }
                 setState(() {});
               },
@@ -147,12 +146,12 @@ class _ClientPageState extends State<ClientPage> {
                     ),
                     Container(
                       decoration: BoxDecoration(
-                        color: client.connected ? Colors.green : Colors.red,
+                        color: client != null && client!.connected ? Colors.green : Colors.red,
                         borderRadius: BorderRadius.all(Radius.circular(3)),
                       ),
                       padding: EdgeInsets.all(5),
                       child: Text(
-                        client.connected ? 'POŁĄCZONY' : 'NIEPOWIĄZANY',
+                        client != null && client!.connected ? 'POŁĄCZONY' : 'NIEPOWIĄZANY',
                         style: TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
@@ -231,7 +230,7 @@ class _ClientPageState extends State<ClientPage> {
               )),
           background: Colors.white);
       setState(() {
-        textFieldIp = ip;
+        textFieldIpController.text = ip;
         client = Client(ip, 4040, this.onData, this.onError);
       });
     } else {

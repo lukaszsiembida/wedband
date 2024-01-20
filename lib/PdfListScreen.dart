@@ -37,7 +37,6 @@ class _PdfListScreen extends State<PdfListScreen> {
   @override
   void initState() {
     listOfFiles();
-    super.initState();
   }
 
   @override
@@ -88,7 +87,7 @@ class _PdfListScreen extends State<PdfListScreen> {
     );
   }
 
-  void listOfFiles() async {
+  void listOfFiles() {
     if (items.isEmpty) {
       String path =
           Provider.of<Configuration>(context, listen: false).getDirectory();
