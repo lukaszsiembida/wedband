@@ -110,6 +110,12 @@ class _PdfListScreen extends State<PdfListScreen> {
   String extractNameFromFile(io.File file) {
     if (Platform.isWindows) {
       return file.path.split('\\').last.replaceAll(".pdf", "").trim();
+    } else if (Platform.isIOS) {
+      String fileName = file.path.split('/').last.replaceAll(".pdf", "").trim();
+      if (fileName.endsWith(' 1')) {
+        return fileName.substring(0, fileName.length - 2).trim();
+      }
+      return fileName;
     } else {
       return file.path.split('/').last.replaceAll(".pdf", "").trim();
     }
