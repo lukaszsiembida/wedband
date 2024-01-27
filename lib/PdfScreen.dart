@@ -110,9 +110,9 @@ class _PdfScreen extends State<PdfScreen> {
                             base64Converter.encode(pdfItem.getTitle());
                         server!.broadCast(encoded);
                         Future.delayed(const Duration(seconds: 5), () {
-                          setState(() {
-                            isButtonDisabled = false;
-                          });
+                        });
+                        setState(() {
+                          isButtonDisabled = false;
                         });
                       } else if (client != null) {
                         setState(() {
@@ -124,9 +124,9 @@ class _PdfScreen extends State<PdfScreen> {
                             base64Converter.encode(pdfItem.getTitle());
                         client!.write(encoded);
                         Future.delayed(const Duration(seconds: 5), () {
-                          setState(() {
-                            isButtonDisabled = false;
-                          });
+                        });
+                        setState(() {
+                          isButtonDisabled = false;
                         });
                       }
                       Provider.of<Configuration>(context, listen: false)

@@ -49,7 +49,6 @@ class Configuration extends ChangeNotifier {
 
   void setPdfList(List<PdfItem> pdfList) {
     this._pdfItemList = pdfList;
-    // notifyListeners();
   }
 
   String getSongTitle() {
