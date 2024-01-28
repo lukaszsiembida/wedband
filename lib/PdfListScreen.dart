@@ -67,10 +67,10 @@ class _PdfListScreen extends State<PdfListScreen> {
               icon: const Icon(Icons.arrow_back, color: Colors.black, size: 30),
               onPressed: () {
                 if(server != null) {
-                  Navigator.of(context).pushReplacement(MaterialPageRoute(
+                  Navigator.of(context).pop(MaterialPageRoute(
                       builder: (context) => ServerPage(server)));
                 } else if(client != null){
-                  Navigator.of(context).pushReplacement(MaterialPageRoute(
+                  Navigator.of(context).pop(MaterialPageRoute(
                       builder: (context) => ClientPage(client)));
                 }
               },
@@ -162,7 +162,7 @@ class _PdfListScreen extends State<PdfListScreen> {
     PdfItem? pdfItem = Provider.of<Configuration>(context, listen: false)
         .getPdfItemByTitle(name);
     if (pdfItem != null) {
-      Navigator.of(context).pushReplacement(MaterialPageRoute(
+      Navigator.of(context).push(MaterialPageRoute(
           builder: (context) => PdfScreen(pdfItem, server, client)));
     } else {
       showSimpleNotification(

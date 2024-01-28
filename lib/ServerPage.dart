@@ -205,14 +205,14 @@ class _ServerPageState extends State<ServerPage> {
                 if (server != null && server!.running) {
                   server!.stop();
                 }
-                Navigator.of(context).pushReplacement(
+                Navigator.of(context).pop(
                     MaterialPageRoute(builder: (context) => Home()));
               },
             ),
             TextButton(
               child: Text("Anuluj", style: TextStyle(color: Colors.grey)),
               onPressed: () {
-                Navigator.of(context).pushReplacement(
+                Navigator.of(context).pop(
                     MaterialPageRoute(builder: (context) => Home()));
               },
             ),
@@ -223,7 +223,7 @@ class _ServerPageState extends State<ServerPage> {
   }
 
   void viewSonglist() {
-    Navigator.of(context).pushReplacement(
+    Navigator.of(context).push(
         MaterialPageRoute(builder: (context) => PdfListScreen(server, null)));
   }
 

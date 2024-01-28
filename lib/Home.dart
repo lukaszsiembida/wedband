@@ -85,7 +85,7 @@ class _HomeState extends State<Home> {
                           style: TextStyle(fontSize: 20, color: Colors.black)),
                       background: Colors.white);
                 } else {
-                  Navigator.of(context).pushReplacementNamed('client');
+                  Navigator.of(context).pushNamed('client');
                 }
               },
               child: Container(
@@ -113,7 +113,7 @@ class _HomeState extends State<Home> {
                           style: TextStyle(fontSize: 20, color: Colors.black)),
                       background: Colors.white);
                 } else {
-                  Navigator.of(context).pushReplacementNamed('server');
+                  Navigator.of(context).pushNamed('server');
                 }
               },
               child: Container(

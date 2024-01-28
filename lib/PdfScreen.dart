@@ -62,7 +62,7 @@ class _PdfScreen extends State<PdfScreen> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black, size: 30),
           onPressed: () {
-            Navigator.of(context).pushReplacement(MaterialPageRoute(
+            Navigator.of(context).pop(MaterialPageRoute(
                 builder: (context) => PdfListScreen(server, client)));
           },
         ),

@@ -214,14 +214,14 @@ class _ClientPageState extends State<ClientPage> {
                 if (client != null && client!.connected) {
                   client!.disconnect();
                 }
-                Navigator.of(context).pushReplacement(MaterialPageRoute(
+                Navigator.of(context).pop(MaterialPageRoute(
                     builder: (context) => Home()));
               },
             ),
             TextButton(
               child: Text("Anuluj", style: TextStyle(color: Colors.grey)),
               onPressed: () {
-                Navigator.of(context).pushReplacement(MaterialPageRoute(
+                Navigator.of(context).pop(MaterialPageRoute(
                     builder: (context) => Home()));
               },
             ),
@@ -232,7 +232,7 @@ class _ClientPageState extends State<ClientPage> {
   }
 
   void viewSonglist() {
-    Navigator.of(context).pushReplacement(
+    Navigator.of(context).push(
         MaterialPageRoute(builder: (context) => PdfListScreen(null, client)));
   }
 
