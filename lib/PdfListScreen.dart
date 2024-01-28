@@ -6,11 +6,12 @@ import 'package:flutter/material.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:provider/provider.dart';
 import 'package:wedband2/Client.dart';
+import 'package:wedband2/ClientPage.dart';
 import 'package:wedband2/Configuration.dart';
-import 'package:wedband2/Home.dart';
 import 'package:wedband2/PdfItem.dart';
 import 'package:wedband2/PdfScreen.dart';
 import 'package:wedband2/Server.dart';
+import 'package:wedband2/ServerPage.dart';
 
 class PdfListScreen extends StatefulWidget {
   Server? server;
@@ -65,8 +66,13 @@ class _PdfListScreen extends State<PdfListScreen> {
             leading: IconButton(
               icon: const Icon(Icons.arrow_back, color: Colors.black, size: 30),
               onPressed: () {
-                Navigator.of(context).pushReplacement(MaterialPageRoute(
-                    builder: (context) => Home()));
+                if(server != null) {
+                  Navigator.of(context).pushReplacement(MaterialPageRoute(
+                      builder: (context) => ServerPage()));
+                } else if(client != null){
+                  Navigator.of(context).pushReplacement(MaterialPageRoute(
+                      builder: (context) => ClientPage()));
+                }
               },
             ),
             title: const Text(title, style: TextStyle(color: Colors.black)),
