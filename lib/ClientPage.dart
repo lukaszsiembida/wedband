@@ -9,13 +9,20 @@ import 'package:provider/provider.dart';
 import 'package:regexed_validator/regexed_validator.dart';
 import 'package:wedband2/Configuration.dart';
 import 'package:wedband2/ConfigurationUtils.dart';
+import 'package:wedband2/Home.dart';
 
 import 'Client.dart';
 import 'PdfListScreen.dart';
 
 class ClientPage extends StatefulWidget {
+
+  Client? client;
+
+  ClientPage(this.client, {Key? key})
+      : super(key: key);
+
   @override
-  _ClientPageState createState() => _ClientPageState();
+  _ClientPageState createState() => _ClientPageState(this.client);
 }
 
 class _ClientPageState extends State<ClientPage> {
@@ -23,9 +30,15 @@ class _ClientPageState extends State<ClientPage> {
   Client? client;
   TextEditingController textFieldIpController = TextEditingController();
 
+  _ClientPageState(this.client);
+
   @override
   void initState() {
-    createClient();
+    if(client == null || client!.connected == false){
+      createClient();
+    } else {
+      textFieldIpController.text = client!.hostname;
+    }
   }
 
   void createClient() async {
@@ -198,14 +211,18 @@ class _ClientPageState extends State<ClientPage> {
             TextButton(
               child: Text("OK", style: TextStyle(color: Colors.red)),
               onPressed: () {
-                Navigator.of(context).pop();
-                Navigator.of(context).pop();
+                if (client != null && client!.connected) {
+                  client!.disconnect();
+                }
+                Navigator.of(context).pushReplacement(MaterialPageRoute(
+                    builder: (context) => Home()));
               },
             ),
             TextButton(
               child: Text("Anuluj", style: TextStyle(color: Colors.grey)),
               onPressed: () {
-                Navigator.of(context).pop();
+                Navigator.of(context).pushReplacement(MaterialPageRoute(
+                    builder: (context) => Home()));
               },
             ),
           ],

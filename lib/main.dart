@@ -37,9 +37,9 @@ Route<dynamic> generateRoute(RouteSettings settings) {
     case '/':
       return MaterialPageRoute(builder: (_) => Home());
     case 'client':
-      return MaterialPageRoute(builder: (_) => ClientPage());
+      return MaterialPageRoute(builder: (_) => ClientPage(null));
     case 'server':
-      return MaterialPageRoute(builder: (_) => ServerPage());
+      return MaterialPageRoute(builder: (_) => ServerPage(null));
     default:
       return MaterialPageRoute(
           builder: (_) => Scaffold(

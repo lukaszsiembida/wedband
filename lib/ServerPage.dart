@@ -7,23 +7,33 @@ import 'package:provider/provider.dart';
 import 'package:regexed_validator/regexed_validator.dart';
 import 'package:wedband2/Configuration.dart';
 import 'package:wedband2/ConfigurationUtils.dart';
+import 'package:wedband2/Home.dart';
 
 import 'PdfListScreen.dart';
 import 'Server.dart';
 
 class ServerPage extends StatefulWidget {
+  Server? server;
+
+  ServerPage(this.server, {Key? key}) : super(key: key);
+
   @override
-  _ServerPageState createState() => _ServerPageState();
+  _ServerPageState createState() => _ServerPageState(this.server);
 }
 
 class _ServerPageState extends State<ServerPage> {
-
   TextEditingController textFieldIpController = TextEditingController();
   Server? server;
 
+  _ServerPageState(this.server);
+
   @override
   void initState() {
-    createServer();
+    if (server == null || server!.running == false) {
+      createServer();
+    } else {
+      textFieldIpController.text = server!.ip;
+    }
   }
 
   void createServer() async {
@@ -95,11 +105,6 @@ class _ServerPageState extends State<ServerPage> {
                         border: OutlineInputBorder(),
                         hintText: 'Serwer ip',
                         labelText: 'Serwer ip'),
-                    // onChanged: (text) {
-                    //     setState(() {
-                    //       textFieldIp = text;
-                    //     });
-                    //   }
                   ),
                 ),
                 Padding(padding: EdgeInsets.all(10)),
@@ -123,8 +128,8 @@ class _ServerPageState extends State<ServerPage> {
                 if (server != null && server!.running) {
                   await server!.stop();
                 } else {
-                  server =
-                      new Server(this.textFieldIpController.text, this.onData, this.onError);
+                  server = new Server(this.textFieldIpController.text,
+                      this.onData, this.onError);
                   await server!.start();
                 }
                 setState(() {});
@@ -197,14 +202,18 @@ class _ServerPageState extends State<ServerPage> {
             TextButton(
               child: Text("OK", style: TextStyle(color: Colors.red)),
               onPressed: () {
-                Navigator.of(context).pop();
-                Navigator.of(context).pop();
+                if (server != null && server!.running) {
+                  server!.stop();
+                }
+                Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(builder: (context) => Home()));
               },
             ),
             TextButton(
               child: Text("Anuluj", style: TextStyle(color: Colors.grey)),
               onPressed: () {
-                Navigator.of(context).pop();
+                Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(builder: (context) => Home()));
               },
             ),
           ],

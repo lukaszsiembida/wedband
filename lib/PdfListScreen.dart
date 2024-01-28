@@ -68,10 +68,10 @@ class _PdfListScreen extends State<PdfListScreen> {
               onPressed: () {
                 if(server != null) {
                   Navigator.of(context).pushReplacement(MaterialPageRoute(
-                      builder: (context) => ServerPage()));
+                      builder: (context) => ServerPage(server)));
                 } else if(client != null){
                   Navigator.of(context).pushReplacement(MaterialPageRoute(
-                      builder: (context) => ClientPage()));
+                      builder: (context) => ClientPage(client)));
                 }
               },
             ),
