@@ -223,7 +223,7 @@ class _ServerPageState extends State<ServerPage> {
   }
 
   void viewSonglist() {
-    Navigator.push(context,
+    Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (context) => PdfListScreen(server, null)));
   }
 
