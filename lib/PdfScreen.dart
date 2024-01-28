@@ -25,19 +25,19 @@ class PdfScreen extends StatefulWidget {
 }
 
 class _PdfScreen extends State<PdfScreen> {
-  double zoom = 1;
+
   PdfItem pdfItem;
   Server? server;
   Client? client;
   bool isButtonDisabled = false;
 
-  late PdfViewerController _pdfViewerController = PdfViewerController();
+  PdfViewerController _pdfViewerController = PdfViewerController();
 
   _PdfScreen(this.pdfItem, this.server, this.client);
 
   @override
   void initState() {
-    _pdfViewerController = PdfViewerController();
+    _pdfViewerController.zoomLevel = 1;
     super.initState();
   }
 
@@ -99,52 +99,28 @@ class _PdfScreen extends State<PdfScreen> {
           IconButton(
               onPressed: isButtonDisabled
                   ? null
-                  : () async {
-                      if (server != null) {
-                        setState(() {
-                          isButtonDisabled = true;
-                        });
-                        Codec<String, String> base64Converter =
-                            utf8.fuse(base64);
-                        String encoded =
-                            base64Converter.encode(pdfItem.getTitle());
-                        server!.broadCast(encoded);
-                        Future.delayed(const Duration(seconds: 5), () {
-                        });
+                  : () {
+                      Future.delayed(Duration(seconds: 1), () {
+                        sendSongTitle();
                         setState(() {
                           isButtonDisabled = false;
                         });
-                      } else if (client != null) {
-                        setState(() {
-                          isButtonDisabled = true;
-                        });
-                        Codec<String, String> base64Converter =
-                            utf8.fuse(base64);
-                        String encoded =
-                            base64Converter.encode(pdfItem.getTitle());
-                        client!.write(encoded);
-                        Future.delayed(const Duration(seconds: 5), () {
-                        });
-                        setState(() {
-                          isButtonDisabled = false;
-                        });
-                      }
-                      Provider.of<Configuration>(context, listen: false)
-                          .changeSongTitle(pdfItem.getTitle());
+                      });
+                      setState(() {
+                        isButtonDisabled = true;
+                      });
                     },
               icon: const Icon(Icons.send, color: Colors.black, size: 40)),
           const Padding(padding: EdgeInsets.symmetric(horizontal: 20)),
           IconButton(
               onPressed: () {
-                zoom += 0.1;
-                _pdfViewerController.zoomLevel = zoom;
+                _pdfViewerController.zoomLevel += 0.1;
               },
               icon: const Icon(Icons.zoom_in, color: Colors.black, size: 40)),
           const Padding(padding: EdgeInsets.symmetric(horizontal: 20)),
           IconButton(
               onPressed: () {
-                zoom -= 0.1;
-                _pdfViewerController.zoomLevel = zoom;
+                  _pdfViewerController.zoomLevel -= 0.1;
               },
               icon: const Icon(
                 Icons.zoom_out,
@@ -155,5 +131,19 @@ class _PdfScreen extends State<PdfScreen> {
         ],
       ),
     );
+  }
+
+  void sendSongTitle() {
+    Codec<String, String> base64Converter = utf8.fuse(base64);
+    String encoded = base64Converter.encode(pdfItem.getTitle());
+    if (server != null) {
+      server!.broadCast(encoded);
+      Provider.of<Configuration>(context, listen: false)
+          .changeSongTitle(pdfItem.getTitle());
+    } else if (client != null) {
+      client!.write(encoded);
+      Provider.of<Configuration>(context, listen: false)
+          .changeSongTitle(pdfItem.getTitle());
+    }
   }
 }
