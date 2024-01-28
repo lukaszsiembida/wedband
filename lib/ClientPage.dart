@@ -214,15 +214,14 @@ class _ClientPageState extends State<ClientPage> {
                 if (client != null && client!.connected) {
                   client!.disconnect();
                 }
-                Navigator.of(context).pop(MaterialPageRoute(
+                Navigator.of(context).pushReplacement(MaterialPageRoute(
                     builder: (context) => Home()));
               },
             ),
             TextButton(
               child: Text("Anuluj", style: TextStyle(color: Colors.grey)),
               onPressed: () {
-                Navigator.of(context).pop(MaterialPageRoute(
-                    builder: (context) => Home()));
+                Navigator.of(context).pop();
               },
             ),
           ],

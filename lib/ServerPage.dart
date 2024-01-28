@@ -205,15 +205,14 @@ class _ServerPageState extends State<ServerPage> {
                 if (server != null && server!.running) {
                   server!.stop();
                 }
-                Navigator.of(context).pop(
+                Navigator.of(context).pushReplacement(
                     MaterialPageRoute(builder: (context) => Home()));
               },
             ),
             TextButton(
               child: Text("Anuluj", style: TextStyle(color: Colors.grey)),
               onPressed: () {
-                Navigator.of(context).pop(
-                    MaterialPageRoute(builder: (context) => Home()));
+                Navigator.of(context).pop();
               },
             ),
           ],
