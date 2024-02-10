@@ -214,8 +214,7 @@ class _ClientPageState extends State<ClientPage> {
                 if (client != null && client!.connected) {
                   client!.disconnect();
                 }
-                Navigator.of(context).pushReplacement(MaterialPageRoute(
-                    builder: (context) => Home()));
+                Navigator.of(context).popUntil((route) => route.isFirst);
               },
             ),
             TextButton(

@@ -205,8 +205,7 @@ class _ServerPageState extends State<ServerPage> {
                 if (server != null && server!.running) {
                   server!.stop();
                 }
-                Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(builder: (context) => Home()));
+                Navigator.of(context).popUntil((route) => route.isFirst);
               },
             ),
             TextButton(
