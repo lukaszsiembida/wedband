@@ -37,23 +37,6 @@ class _HomeState extends State<Home> {
     return Scaffold(
       body: Column(
         children: [
-          // Row(
-          //   mainAxisAlignment: MainAxisAlignment.center,
-          //   children: [
-          //     new Checkbox(
-          //         value: Provider.of<Configuration>(context, listen: false)
-          //             .isHuaweiDevice,
-          //         activeColor: Colors.white30,
-          //         checkColor: Colors.black,
-          //         onChanged: (bool? newValue) {
-          //           setState(() {
-          //             Provider.of<Configuration>(context, listen: false)
-          //                 .setHuaweiDevice(newValue!);
-          //           });
-          //         }),
-          //     Text("Urządzenie Huawei"),
-          //   ],
-          // ),
           Expanded(
             child: InkWell(
               onTap: () async {

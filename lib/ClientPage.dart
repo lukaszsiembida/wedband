@@ -9,7 +9,6 @@ import 'package:provider/provider.dart';
 import 'package:regexed_validator/regexed_validator.dart';
 import 'package:wedband2/Configuration.dart';
 import 'package:wedband2/ConfigurationUtils.dart';
-import 'package:wedband2/Home.dart';
 
 import 'Client.dart';
 import 'PdfListScreen.dart';

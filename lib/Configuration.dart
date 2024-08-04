@@ -5,7 +5,6 @@ import 'PdfItem.dart';
 class Configuration extends ChangeNotifier {
   String _directory = '';
   List<PdfItem> _pdfItemList = [];
-  bool _isHuaweiDevice = false;
   String _songTitle = '';
   final List<String> alphabet = [];
 
@@ -13,15 +12,6 @@ class Configuration extends ChangeNotifier {
 
   String getDirectory() {
     return _directory;
-  }
-
-  bool isHuaweiDevice() {
-    return _isHuaweiDevice;
-  }
-
-  void setHuaweiDevice(bool value) {
-    _isHuaweiDevice = value;
-    notifyListeners();
   }
 
   void changeDirectory(String directory) {

@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import 'package:wedband2/Client.dart';
 import 'package:wedband2/Configuration.dart';
+import 'package:wedband2/ItemService.dart';
 import 'package:wedband2/PdfItem.dart';
 import 'package:wedband2/PdfListScreen.dart';
 import 'package:wedband2/Server.dart';
@@ -25,7 +26,6 @@ class PdfScreen extends StatefulWidget {
 }
 
 class _PdfScreen extends State<PdfScreen> {
-
   PdfItem pdfItem;
   Server? server;
   Client? client;
@@ -87,6 +87,9 @@ class _PdfScreen extends State<PdfScreen> {
                       const Text('Nie posiadasz wybranego utworu w śpiewniku',
                           style: TextStyle(fontSize: 20, color: Colors.black)),
                       background: Colors.white);
+                  setState(() {
+                    ItemService.setListOfFiles(context);
+                  });
                 }
               }
             },
@@ -120,7 +123,7 @@ class _PdfScreen extends State<PdfScreen> {
           const Padding(padding: EdgeInsets.symmetric(horizontal: 20)),
           IconButton(
               onPressed: () {
-                  _pdfViewerController.zoomLevel -= 0.1;
+                _pdfViewerController.zoomLevel -= 0.1;
               },
               icon: const Icon(
                 Icons.zoom_out,
