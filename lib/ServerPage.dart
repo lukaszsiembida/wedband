@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wedband2/Configuration.dart';
 
+import 'ItemService.dart';
 import 'PdfListScreen.dart';
 import 'Server.dart';
 
@@ -24,7 +25,9 @@ class _ServerPageState extends State<ServerPage> {
   _ServerPageState(this.server);
 
   @override
-  void initState() {}
+  void initState() {
+    server = new Server('0.0.0.0', this.onData, this.onError);
+  }
 
   onData(Uint8List data) {
     var downloadData = String.fromCharCodes(data).trim();
@@ -165,6 +168,7 @@ class _ServerPageState extends State<ServerPage> {
   }
 
   void viewSonglist() {
+    ItemService.setListOfFiles(context);
     Navigator.of(context).push(
         MaterialPageRoute(builder: (context) => PdfListScreen(server, null)));
   }

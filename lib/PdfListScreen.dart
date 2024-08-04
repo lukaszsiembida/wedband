@@ -34,10 +34,10 @@ class _PdfListScreen extends State<PdfListScreen> {
 
   @override
   void initState() {
-    if (Provider.of<Configuration>(context, listen: false)
-        .isEmptyPdfItemList()) {
-      ItemService.setListOfFiles(context);
-    }
+    // if (Provider.of<Configuration>(context, listen: false)
+    //     .isEmptyPdfItemList()) {
+    ItemService.setListOfFiles(context);
+    // }
   }
 
   @override

@@ -11,6 +11,7 @@ import 'package:wedband2/Configuration.dart';
 import 'package:wedband2/ConfigurationUtils.dart';
 
 import 'Client.dart';
+import 'ItemService.dart';
 import 'PdfListScreen.dart';
 
 class ClientPage extends StatefulWidget {
