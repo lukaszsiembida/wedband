@@ -168,7 +168,6 @@ class _ServerPageState extends State<ServerPage> {
   }
 
   void viewSonglist() {
-    ItemService.setListOfFiles(context);
     Navigator.of(context).push(
         MaterialPageRoute(builder: (context) => PdfListScreen(server, null)));
   }
