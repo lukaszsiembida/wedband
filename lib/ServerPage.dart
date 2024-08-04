@@ -2,12 +2,8 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:overlay_support/overlay_support.dart';
 import 'package:provider/provider.dart';
-import 'package:regexed_validator/regexed_validator.dart';
 import 'package:wedband2/Configuration.dart';
-import 'package:wedband2/ConfigurationUtils.dart';
-import 'package:wedband2/Home.dart';
 
 import 'PdfListScreen.dart';
 import 'Server.dart';
@@ -28,24 +24,7 @@ class _ServerPageState extends State<ServerPage> {
   _ServerPageState(this.server);
 
   @override
-  void initState() {
-    if (server == null || server!.running == false) {
-      createServer();
-    } else {
-      textFieldIpController.text = server!.ip;
-    }
-  }
-
-  void createServer() async {
-    String ip = await ConfigurationUtils.loadConstant('server-ip');
-    if (ip.isEmpty) {
-      ip = '0.0.0.0';
-    }
-    setState(() {
-      textFieldIpController.text = ip;
-      server = Server(textFieldIpController.text, this.onData, this.onError);
-    });
-  }
+  void initState() {}
 
   onData(Uint8List data) {
     var downloadData = String.fromCharCodes(data).trim();
@@ -89,47 +68,12 @@ class _ServerPageState extends State<ServerPage> {
       body: Column(
         children: [
           Expanded(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text('Serwer ip:',
-                    style: TextStyle(color: Colors.black, fontSize: 30)),
-                const Padding(padding: EdgeInsets.all(10)),
-                SizedBox(
-                  height: 60,
-                  width: 200,
-                  child: TextFormField(
-                    key: UniqueKey(),
-                    controller: textFieldIpController,
-                    decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                        hintText: 'Serwer ip',
-                        labelText: 'Serwer ip'),
-                  ),
-                ),
-                Padding(padding: EdgeInsets.all(10)),
-                OutlinedButton(
-                  style: ButtonStyle(
-                    shape: MaterialStateProperty.all(RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30.0))),
-                  ),
-                  onPressed: () {
-                    writeServerIp(textFieldIpController.text);
-                  },
-                  child: Text('Potwierdź',
-                      style: TextStyle(color: Colors.black, fontSize: 30)),
-                ),
-              ],
-            ),
-          ),
-          Expanded(
             child: InkWell(
               onTap: () async {
                 if (server != null && server!.running) {
                   await server!.stop();
                 } else {
-                  server = new Server(this.textFieldIpController.text,
-                      this.onData, this.onError);
+                  server = new Server('0.0.0.0', this.onData, this.onError);
                   await server!.start();
                 }
                 setState(() {});
@@ -223,31 +167,5 @@ class _ServerPageState extends State<ServerPage> {
   void viewSonglist() {
     Navigator.of(context).push(
         MaterialPageRoute(builder: (context) => PdfListScreen(server, null)));
-  }
-
-  void writeServerIp(String ip) {
-    if (server != null && server!.running) {
-      showSimpleNotification(
-          Text('Nie można edytować ip gdy serwer jest uruchomiony!',
-              style: TextStyle(fontSize: 20, color: Colors.black)),
-          background: Colors.white);
-    } else {
-      if (validator.ip(ip) && (server == null || server!.running == false)) {
-        ConfigurationUtils.saveConstant('server-ip', ip);
-        showSimpleNotification(
-            Text('Ip zostało zapisane',
-                style: TextStyle(fontSize: 20, color: Colors.black)),
-            background: Colors.white);
-        setState(() {
-          textFieldIpController.text = ip;
-          server = Server(ip, this.onData, this.onError);
-        });
-      } else {
-        showSimpleNotification(
-            Text('Błąd edycji ip',
-                style: TextStyle(fontSize: 20, color: Colors.black)),
-            background: Colors.white);
-      }
-    }
   }
 }
