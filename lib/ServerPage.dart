@@ -1,10 +1,13 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:overlay_support/overlay_support.dart';
 import 'package:provider/provider.dart';
 import 'package:wedband2/Configuration.dart';
 
+import 'DirectoryService.dart';
 import 'ItemService.dart';
 import 'PdfListScreen.dart';
 import 'Server.dart';
@@ -116,8 +119,37 @@ class _ServerPageState extends State<ServerPage> {
           ),
           Expanded(
             child: InkWell(
+              onTap: () async {
+                await DirectoryService.setDirectoryPath(context);
+              },
+              child: Container(
+                color: Colors.white12,
+                child: const Center(
+                  child: Text(
+                    'Wybór katalogu z tekstami',
+                    style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 30),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+            child: InkWell(
               onTap: () {
-                viewSonglist();
+                String directory =
+                    Provider.of<Configuration>(context, listen: false)
+                        .getDirectory();
+                if (directory.isEmpty) {
+                  showSimpleNotification(
+                      const Text('Nie wybrano katalogu z utworami!',
+                          style: TextStyle(fontSize: 20, color: Colors.black)),
+                      background: Colors.white);
+                } else {
+                  viewSonglist();
+                }
               },
               child: Container(
                 color: Colors.white12,

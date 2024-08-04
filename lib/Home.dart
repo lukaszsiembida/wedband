@@ -5,6 +5,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:wedband2/Configuration.dart';
 import 'package:wedband2/ConfigurationUtils.dart';
+import 'package:wedband2/DirectoryService.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -39,37 +40,8 @@ class _HomeState extends State<Home> {
         children: [
           Expanded(
             child: InkWell(
-              onTap: () async {
-                await setDirectoryPath();
-              },
-              child: Container(
-                color: Colors.white12,
-                child: const Center(
-                  child: Text(
-                    'Wybór katalogu z tekstami',
-                    style: TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 30),
-                  ),
-                ),
-              ),
-            ),
-          ),
-          Expanded(
-            child: InkWell(
               onTap: () {
-                String directory =
-                    Provider.of<Configuration>(context, listen: false)
-                        .getDirectory();
-                if (directory.isEmpty) {
-                  showSimpleNotification(
-                      const Text('Nie wybrano katalogu z utworami!',
-                          style: TextStyle(fontSize: 20, color: Colors.black)),
-                      background: Colors.white);
-                } else {
-                  Navigator.of(context).pushNamed('client');
-                }
+                Navigator.of(context).pushNamed('client');
               },
               child: Container(
                 color: Colors.white,
@@ -87,17 +59,7 @@ class _HomeState extends State<Home> {
           Expanded(
             child: InkWell(
               onTap: () {
-                String directory =
-                    Provider.of<Configuration>(context, listen: false)
-                        .getDirectory();
-                if (directory.isEmpty) {
-                  showSimpleNotification(
-                      const Text('Nie wybrano katalogu z utworami!',
-                          style: TextStyle(fontSize: 20, color: Colors.black)),
-                      background: Colors.white);
-                } else {
-                  Navigator.of(context).pushNamed('server');
-                }
+                Navigator.of(context).pushNamed('server');
               },
               child: Container(
                 color: Colors.white54,
@@ -115,14 +77,5 @@ class _HomeState extends State<Home> {
         ],
       ),
     );
-  }
-
-  Future<void> setDirectoryPath() async {
-    String? directory = await FilePicker.platform.getDirectoryPath();
-    if (directory != null) {
-      Provider.of<Configuration>(context, listen: false)
-          .changeDirectory(directory);
-      ConfigurationUtils.saveConstant('directory', directory);
-    }
   }
 }
