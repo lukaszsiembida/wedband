@@ -1,11 +1,8 @@
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:overlay_support/overlay_support.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:wedband2/Configuration.dart';
 import 'package:wedband2/ConfigurationUtils.dart';
-import 'package:wedband2/DirectoryService.dart';
 
 class Home extends StatefulWidget {
   @override

@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -8,26 +7,21 @@ import 'package:overlay_support/overlay_support.dart';
 import 'package:provider/provider.dart';
 import 'package:regexed_validator/regexed_validator.dart';
 import 'package:wedband2/Configuration.dart';
-import 'package:wedband2/ConfigurationUtils.dart';
 
 import 'Client.dart';
 import 'DirectoryService.dart';
-import 'ItemService.dart';
 import 'PdfListScreen.dart';
 
 class ClientPage extends StatefulWidget {
-
   Client? client;
 
-  ClientPage(this.client, {Key? key})
-      : super(key: key);
+  ClientPage(this.client, {Key? key}) : super(key: key);
 
   @override
   _ClientPageState createState() => _ClientPageState(this.client);
 }
 
 class _ClientPageState extends State<ClientPage> {
-
   Client? client;
   TextEditingController textFieldIpController = TextEditingController();
 
@@ -35,7 +29,7 @@ class _ClientPageState extends State<ClientPage> {
 
   @override
   void initState() {
-    if(client == null || client!.connected == false){
+    if (client == null || client!.connected == false) {
       createClient();
     } else {
       textFieldIpController.text = client!.hostname;
@@ -43,15 +37,9 @@ class _ClientPageState extends State<ClientPage> {
   }
 
   void createClient() async {
-    String ip = await ConfigurationUtils.loadConstant('client-ip');
-    if (Platform.isAndroid) {
-      final info = NetworkInfo();
-      String? wifi = await info.getWifiGatewayIP();
-      ip = wifi != null ? wifi : ip;
-    }
-    if (ip.isEmpty) {
-      ip = '192.168.';
-    }
+    final info = NetworkInfo();
+    String? wifi = await info.getWifiGatewayIP();
+    String ip = wifi != null ? wifi : '192.168.';
     setState(() {
       textFieldIpController.text = ip;
       client = Client(ip, 4040, this.onData, this.onError);
@@ -72,7 +60,7 @@ class _ClientPageState extends State<ClientPage> {
   }
 
   dispose() {
-    if(client != null && client!.connected) {
+    if (client != null && client!.connected) {
       client!.disconnect();
     }
     super.dispose();
@@ -141,7 +129,8 @@ class _ClientPageState extends State<ClientPage> {
                 if (client != null && client!.connected) {
                   await client!.disconnect();
                 } else {
-                  client = new Client(textFieldIpController.text, 4040, this.onData, this.onError);
+                  client = new Client(textFieldIpController.text, 4040,
+                      this.onData, this.onError);
                   await client!.connect();
                 }
                 setState(() {});
@@ -160,12 +149,16 @@ class _ClientPageState extends State<ClientPage> {
                     ),
                     Container(
                       decoration: BoxDecoration(
-                        color: client != null && client!.connected ? Colors.green : Colors.red,
+                        color: client != null && client!.connected
+                            ? Colors.green
+                            : Colors.red,
                         borderRadius: BorderRadius.all(Radius.circular(3)),
                       ),
                       padding: EdgeInsets.all(5),
                       child: Text(
-                        client != null && client!.connected ? 'POŁĄCZONY' : 'NIEPOWIĄZANY',
+                        client != null && client!.connected
+                            ? 'POŁĄCZONY'
+                            : 'NIEPOWIĄZANY',
                         style: TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
@@ -200,8 +193,8 @@ class _ClientPageState extends State<ClientPage> {
             child: InkWell(
               onTap: () {
                 String directory =
-                Provider.of<Configuration>(context, listen: false)
-                    .getDirectory();
+                    Provider.of<Configuration>(context, listen: false)
+                        .getDirectory();
                 if (directory.isEmpty) {
                   showSimpleNotification(
                       const Text('Nie wybrano katalogu z utworami!',
@@ -266,7 +259,6 @@ class _ClientPageState extends State<ClientPage> {
 
   void writeServerIp(String ip) async {
     if (validator.ip(ip)) {
-      ConfigurationUtils.saveConstant('client-ip', ip);
       showSimpleNotification(
           Text('Ip zostało zapisane',
               style: TextStyle(

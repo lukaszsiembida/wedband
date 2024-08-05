@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
       initialRoute: '/',
       title: 'Live Band',
       theme: ThemeData(
-        backgroundColor: Colors.white,
+        scaffoldBackgroundColor: Colors.white,
       ),
     ));
   }
