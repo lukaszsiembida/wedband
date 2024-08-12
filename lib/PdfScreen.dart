@@ -28,7 +28,7 @@ class PdfScreen extends StatefulWidget {
   }
 }
 
-class _PdfScreen extends State<PdfScreen> {
+class _PdfScreen extends State<PdfScreen> with WidgetsBindingObserver {
   PdfItem pdfItem;
   Server? server;
   Client? client;
@@ -53,141 +53,176 @@ class _PdfScreen extends State<PdfScreen> {
   }
 
   @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      if (Provider.of<Configuration>(context, listen: false)
+          .isCheckedMetronom()) {
+        _metronomService.stop();
+        setState(() {
+          _isPlaying = false;
+        });
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        body: Column(children: [
-          Expanded(
-            // height: MediaQuery.of(context).size.height,
-            child: InteractiveViewer(
-              panEnabled: true,
-              child: SfPdfViewer.file(
-                pdfItem.getFile(),
-                controller: _pdfViewerController,
-                pageLayoutMode: PdfPageLayoutMode.single,
-                pageSpacing: 0.0,
+    return WillPopScope(
+        child: Scaffold(
+            body: Column(children: [
+              Expanded(
+                // height: MediaQuery.of(context).size.height,
+                child: InteractiveViewer(
+                  panEnabled: true,
+                  child: SfPdfViewer.file(
+                    pdfItem.getFile(),
+                    controller: _pdfViewerController,
+                    pageLayoutMode: PdfPageLayoutMode.single,
+                    pageSpacing: 0.0,
+                  ),
+                ),
               ),
-            ),
-          ),
-          Visibility(
-            visible: Provider.of<Configuration>(context, listen: false)
-                .isCheckedMetronom(),
-            child: Container(
-              height: 50,
-              child: Row(children: [
-                IconButton(
-                  onPressed: () {
-                    setState(() {
-                      if (_bpm > 5) {
-                        _bpm -= 5;
-                        _metronomService.setBpm(_bpm);
-                      }
-                    });
-                  },
-                  icon: IconWithText(text: '-5'),
+              Visibility(
+                visible: Provider.of<Configuration>(context, listen: false)
+                    .isCheckedMetronom(),
+                child: Container(
+                  height: 50,
+                  child: Row(children: [
+                    IconButton(
+                      onPressed: () {
+                        setState(() {
+                          if (_bpm > 5) {
+                            _bpm -= 5;
+                            _metronomService.setBpm(_bpm);
+                          }
+                        });
+                      },
+                      icon: IconWithText(text: '-5'),
+                    ),
+                    IconButton(
+                      onPressed: () {
+                        setState(() {
+                          if (_bpm > 1) {
+                            _bpm -= 1;
+                            _metronomService.setBpm(_bpm);
+                          }
+                        });
+                      },
+                      icon: IconWithText(text: '-1'),
+                    ),
+                    Text('Bpm: $_bpm',
+                        style:
+                            const TextStyle(fontSize: 20, color: Colors.black)),
+                    IconButton(
+                      onPressed: () {
+                        setState(() {
+                          _bpm += 1;
+                          _metronomService.setBpm(_bpm);
+                        });
+                      },
+                      icon: IconWithText(text: '+1'),
+                    ),
+                    IconButton(
+                      onPressed: () {
+                        setState(() {
+                          _bpm += 5;
+                          _metronomService.setBpm(_bpm);
+                        });
+                      },
+                      icon: IconWithText(text: '+5'),
+                    ),
+                    const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 20)),
+                    IconButton(
+                        onPressed: () async {
+                          onPressedPlay();
+                        },
+                        icon: Icon(_isPlaying ? Icons.pause : Icons.play_arrow))
+                  ]),
                 ),
-                IconButton(
-                  onPressed: () {
+              )
+            ]),
+            appBar: AppBar(
+              leading: IconButton(
+                icon:
+                    const Icon(Icons.arrow_back, color: Colors.black, size: 30),
+                onPressed: () {
+                  if (Provider.of<Configuration>(context, listen: false)
+                      .isCheckedMetronom()) {
+                    _metronomService.stop();
                     setState(() {
-                      if (_bpm > 1) {
-                        _bpm -= 1;
-                        _metronomService.setBpm(_bpm);
-                      }
+                      _isPlaying = false;
                     });
+                  }
+                  Navigator.of(context).pop(MaterialPageRoute(
+                      builder: (context) => PdfListScreen(server, client)));
+                },
+              ),
+              toolbarHeight: 50,
+              actions: <Widget>[
+                const Padding(padding: EdgeInsets.symmetric(horizontal: 30)),
+                TextButton(
+                  onPressed: () async {
+                    loadSongOnScreen(context);
                   },
-                  icon: IconWithText(text: '-1'),
-                ),
-                Text('Bpm: $_bpm',
-                    style: const TextStyle(fontSize: 20, color: Colors.black)),
-                IconButton(
-                  onPressed: () {
-                    setState(() {
-                      _bpm += 1;
-                      _metronomService.setBpm(_bpm);
-                    });
-                  },
-                  icon: IconWithText(text: '+1'),
-                ),
-                IconButton(
-                  onPressed: () {
-                    setState(() {
-                      _bpm += 5;
-                      _metronomService.setBpm(_bpm);
-                    });
-                  },
-                  icon: IconWithText(text: '+5'),
+                  child: Text(
+                    context.watch<Configuration>().getSongTitleShortcut(),
+                    style: const TextStyle(fontSize: 30, color: Colors.black),
+                  ),
                 ),
                 const Padding(padding: EdgeInsets.symmetric(horizontal: 20)),
                 IconButton(
-                    onPressed: () async {
-                      onPressedPlay();
+                    onPressed: isButtonDisabled
+                        ? null
+                        : () {
+                            Future.delayed(Duration(seconds: 1), () {
+                              sendSongTitle();
+                              setState(() {
+                                isButtonDisabled = false;
+                              });
+                            });
+                            setState(() {
+                              isButtonDisabled = true;
+                            });
+                          },
+                    icon:
+                        const Icon(Icons.send, color: Colors.black, size: 40)),
+                const Padding(padding: EdgeInsets.symmetric(horizontal: 15)),
+                IconButton(
+                    onPressed: () {
+                      _pdfViewerController.zoomLevel += 0.1;
                     },
-                    icon: Icon(_isPlaying ? Icons.pause : Icons.play_arrow))
-              ]),
-            ),
-          )
-        ]),
-        appBar: AppBar(
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.black, size: 30),
-            onPressed: () {
-              if (Provider.of<Configuration>(context, listen: false)
-                  .isCheckedMetronom()) {
-                _metronomService.stop();
-                setState(() {
-                  _isPlaying = false;
-                });
-              }
-              Navigator.of(context).pop(MaterialPageRoute(
-                  builder: (context) => PdfListScreen(server, client)));
-            },
-          ),
-          toolbarHeight: 50,
-          actions: <Widget>[
-            const Padding(padding: EdgeInsets.symmetric(horizontal: 30)),
-            TextButton(
-              onPressed: () async {
-                loadSongOnScreen(context);
-              },
-              child: Text(
-                context.watch<Configuration>().getSongTitleShortcut(),
-                style: const TextStyle(fontSize: 30, color: Colors.black),
-              ),
-            ),
-            const Padding(padding: EdgeInsets.symmetric(horizontal: 20)),
-            IconButton(
-                onPressed: isButtonDisabled
-                    ? null
-                    : () {
-                        Future.delayed(Duration(seconds: 1), () {
-                          sendSongTitle();
-                          setState(() {
-                            isButtonDisabled = false;
-                          });
-                        });
-                        setState(() {
-                          isButtonDisabled = true;
-                        });
-                      },
-                icon: const Icon(Icons.send, color: Colors.black, size: 40)),
-            const Padding(padding: EdgeInsets.symmetric(horizontal: 15)),
-            IconButton(
-                onPressed: () {
-                  _pdfViewerController.zoomLevel += 0.1;
-                },
-                icon: const Icon(Icons.zoom_in, color: Colors.black, size: 40)),
-            const Padding(padding: EdgeInsets.symmetric(horizontal: 15)),
-            IconButton(
-                onPressed: () {
-                  _pdfViewerController.zoomLevel -= 0.1;
-                },
-                icon: const Icon(
-                  Icons.zoom_out,
-                  color: Colors.black,
-                  size: 40,
-                )),
-            const Padding(padding: EdgeInsets.symmetric(horizontal: 30)),
-          ],
-        ));
+                    icon: const Icon(Icons.zoom_in,
+                        color: Colors.black, size: 40)),
+                const Padding(padding: EdgeInsets.symmetric(horizontal: 15)),
+                IconButton(
+                    onPressed: () {
+                      _pdfViewerController.zoomLevel -= 0.1;
+                    },
+                    icon: const Icon(
+                      Icons.zoom_out,
+                      color: Colors.black,
+                      size: 40,
+                    )),
+                const Padding(padding: EdgeInsets.symmetric(horizontal: 30)),
+              ],
+            )),
+        onWillPop: () async {
+          if (Provider.of<Configuration>(context, listen: false)
+              .isCheckedMetronom()) {
+            _metronomService.stop();
+            setState(() {
+              _isPlaying = false;
+            });
+          }
+          return true;
+        });
   }
 
   void loadSongOnScreen(BuildContext context) {
