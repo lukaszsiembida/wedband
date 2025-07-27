@@ -88,66 +88,65 @@ class _PdfScreen extends State<PdfScreen> with WidgetsBindingObserver {
                   ),
                 ),
               ),
-              Visibility(
-                visible: Provider.of<Configuration>(context, listen: false)
-                    .isCheckedMetronom(),
-                child: Container(
-                  height: 50,
-                  child: Row(children: [
-                    IconButton(
-                      onPressed: () {
-                        setState(() {
-                          if (_bpm > 5) {
-                            _bpm -= 5;
-                            _metronomService.setBpm(_bpm);
-                          }
-                        });
-                      },
-                      icon: IconWithText(text: '-5'),
-                    ),
-                    IconButton(
-                      onPressed: () {
-                        setState(() {
-                          if (_bpm > 1) {
-                            _bpm -= 1;
-                            _metronomService.setBpm(_bpm);
-                          }
-                        });
-                      },
-                      icon: IconWithText(text: '-1'),
-                    ),
-                    Text('Bpm: $_bpm',
-                        style:
-                            const TextStyle(fontSize: 20, color: Colors.black)),
-                    IconButton(
-                      onPressed: () {
-                        setState(() {
-                          _bpm += 1;
-                          _metronomService.setBpm(_bpm);
-                        });
-                      },
-                      icon: IconWithText(text: '+1'),
-                    ),
-                    IconButton(
-                      onPressed: () {
-                        setState(() {
-                          _bpm += 5;
-                          _metronomService.setBpm(_bpm);
-                        });
-                      },
-                      icon: IconWithText(text: '+5'),
-                    ),
-                    const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 20)),
-                    IconButton(
-                        onPressed: () async {
-                          onPressedPlay();
-                        },
-                        icon: Icon(_isPlaying ? Icons.pause : Icons.play_arrow))
-                  ]),
-                ),
-              )
             ]),
+            bottomNavigationBar: Visibility(
+              visible: Provider.of<Configuration>(context, listen: false)
+                  .isCheckedMetronom(),
+              child: Container(
+                height: 60,
+                child: Row(children: [
+                  IconButton(
+                    onPressed: () {
+                      setState(() {
+                        if (_bpm > 5) {
+                          _bpm -= 5;
+                          _metronomService.setBpm(_bpm);
+                        }
+                      });
+                    },
+                    icon: IconWithText(text: '-5'),
+                  ),
+                  IconButton(
+                    onPressed: () {
+                      setState(() {
+                        if (_bpm > 1) {
+                          _bpm -= 1;
+                          _metronomService.setBpm(_bpm);
+                        }
+                      });
+                    },
+                    icon: IconWithText(text: '-1'),
+                  ),
+                  Text('Bpm: $_bpm',
+                      style:
+                          const TextStyle(fontSize: 20, color: Colors.black)),
+                  IconButton(
+                    onPressed: () {
+                      setState(() {
+                        _bpm += 1;
+                        _metronomService.setBpm(_bpm);
+                      });
+                    },
+                    icon: IconWithText(text: '+1'),
+                  ),
+                  IconButton(
+                    onPressed: () {
+                      setState(() {
+                        _bpm += 5;
+                        _metronomService.setBpm(_bpm);
+                      });
+                    },
+                    icon: IconWithText(text: '+5'),
+                  ),
+                  const Padding(padding: EdgeInsets.symmetric(horizontal: 20)),
+                  IconButton(
+                      onPressed: () async {
+                        onPressedPlay();
+                      },
+                      icon: Icon(_isPlaying ? Icons.pause : Icons.play_arrow))
+                ]),
+              ),
+            ),
             appBar: AppBar(
               leading: IconButton(
                 icon:
