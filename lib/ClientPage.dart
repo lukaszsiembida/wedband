@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:network_info_plus/network_info_plus.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:provider/provider.dart';
-import 'package:regexed_validator/regexed_validator.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:wedband/Configuration.dart';
 
@@ -40,7 +39,7 @@ class _ClientPageState extends State<ClientPage> {
   void createClient() async {
     final info = NetworkInfo();
     String? wifi = await info.getWifiGatewayIP();
-    String ip = wifi != null ? wifi : '192.168.';
+    String ip = wifi != null ? wifi : 'error';
     setState(() {
       textFieldIpController.text = ip;
       client = Client(ip, 4040, this.onData, this.onError);
@@ -88,14 +87,12 @@ class _ClientPageState extends State<ClientPage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text('Serwer ip:',
-                        style: TextStyle(color: Colors.black, fontSize: 30)),
-                    Padding(padding: EdgeInsets.all(10)),
                     SizedBox(
                       height: 60,
                       width: 200,
                       child: TextFormField(
                         key: UniqueKey(),
+                        readOnly: true,
                         controller: textFieldIpController,
                         decoration: InputDecoration(
                             border: OutlineInputBorder(),
@@ -105,22 +102,6 @@ class _ClientPageState extends State<ClientPage> {
                     ),
                   ],
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    OutlinedButton(
-                      style: ButtonStyle(
-                        shape: MaterialStateProperty.all(RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30.0))),
-                      ),
-                      onPressed: () async {
-                        writeServerIp(textFieldIpController.text);
-                      },
-                      child: Text('Potwierdź',
-                          style: TextStyle(color: Colors.black, fontSize: 30)),
-                    )
-                  ],
-                )
               ],
             ),
           ),
@@ -257,26 +238,5 @@ class _ClientPageState extends State<ClientPage> {
   void viewSonglist() {
     Navigator.of(context).push(
         MaterialPageRoute(builder: (context) => PdfListScreen(null, client)));
-  }
-
-  void writeServerIp(String ip) async {
-    if (validator.ip(ip)) {
-      showSimpleNotification(
-          Text('Ip zostało zapisane',
-              style: TextStyle(
-                fontSize: 10,
-                color: Colors.black,
-              )),
-          background: Colors.white);
-      setState(() {
-        textFieldIpController.text = ip;
-        client = Client(ip, 4040, this.onData, this.onError);
-      });
-    } else {
-      showSimpleNotification(
-          Text('Błąd edycji ip',
-              style: TextStyle(fontSize: 10, color: Colors.black)),
-          background: Colors.white);
-    }
   }
 }

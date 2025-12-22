@@ -8,6 +8,7 @@ class Configuration extends ChangeNotifier {
   String _songTitle = '';
   final List<String> alphabet = [];
   bool _metronom = false;
+  bool _host = false;
 
   Configuration();
 
@@ -65,6 +66,15 @@ class Configuration extends ChangeNotifier {
 
   void setMetronomStatus(bool isChecked) {
     _metronom = isChecked;
+    notifyListeners();
+  }
+
+  bool isHost() {
+    return _host;
+  }
+
+  void setHost(bool isChecked) {
+    _host = isChecked;
     notifyListeners();
   }
 }

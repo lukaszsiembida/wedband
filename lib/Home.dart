@@ -14,6 +14,7 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   bool _metronom = false;
+  bool _host = false;
 
   initState() {
     initPermission();
@@ -45,6 +46,13 @@ class _HomeState extends State<Home> {
             .setMetronomStatus(_metronom);
       });
     }
+    String host = await ConfigurationUtils.loadConstant('host');
+    if ('true' == host) {
+      setState(() {
+        _host = true;
+        Provider.of<Configuration>(context, listen: false).setHost(_host);
+      });
+    }
   }
 
   void _toggleChbxMetronom(bool? value) {
@@ -60,80 +68,126 @@ class _HomeState extends State<Home> {
     });
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Column(
-        children: [
-          Expanded(
-            child: InkWell(
-              onTap: () {
-                WakelockPlus.enable();
-                Navigator.of(context).pushNamed('client');
-              },
-              child: Container(
-                color: Colors.white,
-                child: const Center(
-                    child: Text(
-                  'Klient',
-                  style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 40,
-                      fontWeight: FontWeight.bold),
-                )),
-              ),
-            ),
-          ),
-          Expanded(
-            child: InkWell(
-              onTap: () {
-                WakelockPlus.enable();
-                Navigator.of(context).pushNamed('server');
-              },
-              child: Container(
-                color: Colors.white54,
-                child: const Center(
-                    child: Text(
+  void _toggleChbxHost(bool? value) {
+    setState(() {
+      _host = value ?? false; // Update the state
+      Provider.of<Configuration>(context, listen: false).setHost(_host);
+      if (_host) {
+        ConfigurationUtils.saveConstant('host', 'true');
+      } else {
+        ConfigurationUtils.saveConstant('host', 'false');
+      }
+    });
+  }
+
+  Expanded _prepareExpandSystemKlientSerwer() {
+    if (_host) {
+      return Expanded(
+        child: InkWell(
+          onTap: () {
+            WakelockPlus.enable();
+            Navigator.of(context).pushNamed('server');
+          },
+          child: Container(
+            color: Colors.white54,
+            child: const Center(
+                child: Text(
                   'Serwer',
                   style: TextStyle(
                       color: Colors.black,
                       fontSize: 40,
                       fontWeight: FontWeight.bold),
                 )),
-              ),
+          ),
+        ),
+      );
+    } else {
+      return Expanded(
+        child: InkWell(
+          onTap: () {
+            WakelockPlus.enable();
+            Navigator.of(context).pushNamed('client');
+          },
+          child: Container(
+            color: Colors.white,
+            child: const Center(
+                child: Text(
+                  'Klient',
+                  style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 40,
+                      fontWeight: FontWeight.bold),
+                )),
+          ),
+        ),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Column(
+        children: [
+          _prepareExpandSystemKlientSerwer(),
+          Expanded(
+            child: Container(
+              color: Colors.white54,
+              child: const Center(
+                  child: Text(
+                    '',
+                  )),
             ),
           ),
-          Visibility(
-              visible: Platform.isAndroid,
-              child: Expanded(
-                child: Container(
-                    color: Colors.white,
-                    child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: <Widget>[
-                          Text(
-                            'Opcje:',
-                            style: TextStyle(
-                                color: Colors.black,
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold),
-                          ),
-                          SizedBox(height: 20),
-                          Row(
+          Expanded(
+            child: Container(
+                color: Colors.white,
+                child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: <Widget>[
+                      Text(
+                        'Opcje:',
+                        style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold),
+                      ),
+                      SizedBox(height: 20),
+                      Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Checkbox(
+                              value: _host,
+                              onChanged: _toggleChbxHost,
+                            ),
+                            Text(
+                              'Host',
+                              style: TextStyle(fontSize: 20),
+                            )
+                          ]),
+                      Visibility(
+                          visible: Platform.isAndroid,
+                          child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Checkbox(
-                                  value: _metronom,
-                                  onChanged: _toggleChbxMetronom,
-                                ),
-                                Text(
-                                  'Metronom',
-                                  style: TextStyle(fontSize: 20),
-                                )
-                              ])
-                        ])),
-              )),
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: <Widget>[
+                                SizedBox(height: 20),
+                                Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Checkbox(
+                                        value: _metronom,
+                                        onChanged: _toggleChbxMetronom,
+                                      ),
+                                      Text(
+                                        'Metronom',
+                                        style: TextStyle(fontSize: 20),
+                                      )
+                                    ]),
+                              ])),
+                    ])),
+          ),
         ],
       ),
     );
