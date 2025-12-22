@@ -77,7 +77,7 @@ class _PdfListScreen extends State<PdfListScreen> {
             itemExtent: 60,
             itemBuilder: (context, index, id) {
               return Padding(
-                  padding: const EdgeInsets.only(right: 50),
+                  padding: const EdgeInsets.only(right: 45),
                   child: Container(
                     height: 60,
                     color: Colors.amber[colorCodes[index]],
