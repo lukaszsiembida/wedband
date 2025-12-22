@@ -83,6 +83,7 @@ class _HomeState extends State<Home> {
   Expanded _prepareExpandSystemKlientSerwer() {
     if (_host) {
       return Expanded(
+        flex: 2,
         child: InkWell(
           onTap: () {
             WakelockPlus.enable();
@@ -103,6 +104,7 @@ class _HomeState extends State<Home> {
       );
     } else {
       return Expanded(
+        flex: 2,
         child: InkWell(
           onTap: () {
             WakelockPlus.enable();
@@ -130,15 +132,6 @@ class _HomeState extends State<Home> {
       body: Column(
         children: [
           _prepareExpandSystemKlientSerwer(),
-          Expanded(
-            child: Container(
-              color: Colors.white54,
-              child: const Center(
-                  child: Text(
-                    '',
-                  )),
-            ),
-          ),
           Expanded(
             child: Container(
                 color: Colors.white,
