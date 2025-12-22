@@ -74,28 +74,31 @@ class _PdfListScreen extends State<PdfListScreen> {
                 .getPdfItems()
                 .map((e) => AlphaModel(e.getTitle()))
                 .toList(),
-            itemExtent: 50,
+            itemExtent: 60,
             itemBuilder: (context, index, id) {
-              return Container(
-                height: 60,
-                color: Colors.amber[colorCodes[index]],
-                child: SizedBox(
-                  height: 60,
-                  child: TextButton(
-                    onPressed: () {
-                      viewPdf(Provider.of<Configuration>(context, listen: false)
-                          .getPdfItems()[index]
-                          .getTitle());
-                    },
-                    child: Text(
-                        Provider.of<Configuration>(context, listen: false)
-                            .getPdfItems()[index]
-                            .getTitle(),
-                        style:
-                            const TextStyle(color: Colors.black, fontSize: 30)),
-                  ),
-                ),
-              );
+              return Padding(
+                  padding: const EdgeInsets.only(right: 50),
+                  child: Container(
+                    height: 60,
+                    color: Colors.amber[colorCodes[index]],
+                    child: SizedBox(
+                      height: 60,
+                      child: TextButton(
+                        onPressed: () {
+                          viewPdf(
+                              Provider.of<Configuration>(context, listen: false)
+                                  .getPdfItems()[index]
+                                  .getTitle());
+                        },
+                        child: Text(
+                            Provider.of<Configuration>(context, listen: false)
+                                .getPdfItems()[index]
+                                .getTitle(),
+                            style: const TextStyle(
+                                color: Colors.black, fontSize: 30)),
+                      ),
+                    ),
+                  ));
             },
             selectedTextStyle:
                 const TextStyle(fontSize: 30, color: Colors.black),
